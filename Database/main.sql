@@ -7,38 +7,39 @@ drop table users;
 
 create table users (
   email        varchar(30) PRIMARY KEY,
-  name         varchar(10) not null,
-  pass         varchar(10) not null,
+  name         varchar(30) not null,
+  pass         varchar(30) not null,
   date_created date
 );
 
 create table shortcut (
-  id          number      not null,
-  name        varchar(10) not null,
-  upload_date date,
-  uploader    varchar(30),
-  reputation  number default 0,
-  foreign key (uploader) references users(email),
-  PRIMARY KEY (id)
+  id            number      PRIMARY KEY,
+  name          varchar(30) not null,
+  description   varchar(200) null,
+  upload_date   date,
+  uploader      varchar(30),
+  reputation    number default 0,
+  foreign key   (uploader) references users(email) ON DELETE CASCADE
 );
 
 CREATE TABLE uploads (
   users    varchar(30),
   shortcut number primary key,
-  FOREIGN KEY (users) REFERENCES users (email),
-  FOREIGN KEY (shortcut) REFERENCES shortcut (id)
+  FOREIGN KEY (users) REFERENCES users (email) ON DELETE CASCADE,
+  FOREIGN KEY (shortcut) REFERENCES shortcut (id) ON DELETE CASCADE
 );
 
 CREATE TABLE votes (
   users    varchar(30),
   shortcut number,
   upvote   number,
-  FOREIGN KEY (USERS) REFERENCES USERS (email),
-  FOREIGN KEY (SHORTCUT) REFERENCES SHORTCUT (ID)
+  FOREIGN KEY (USERS) REFERENCES USERS (EMAIL) ON DELETE CASCADE,
+  FOREIGN KEY (SHORTCUT) REFERENCES SHORTCUT (ID) ON DELETE CASCADE,
+  CONSTRAINT VOTES_USERS_SHORTCUT_PK PRIMARY KEY (USERS,SHORTCUT)
 );
 
 CREATE TABLE autogen (
-  shortcut number
+  shortcut number PRIMARY KEY
 );
 
 CREATE OR REPLACE TRIGGER TOTAL_VOTES_COUNT
@@ -74,18 +75,6 @@ CREATE OR REPLACE TRIGGER IDENTITY_ON_SHORTCUT
     SET SHORTCUT = S_ID;
     INSERT INTO UPLOADS (USERS, SHORTCUT) VALUES (:NEW.UPLOADER, :NEW.ID);
   END;
-
-CREATE or REPLACE PROCEDURE upvote(u_id votes.users%type, s_id number, up_down number)
-IS
-  BEGIN
-    insert into votes (users, shortcut, upvote) values (
-      u_id, s_id, up_down
-    );
-    IF up_down = 1
-    THEN dbms_output.put_line('upvoted');
-    ELSE dbms_output.put_line('downvoted');
-    end if;
-  END upvote;
 
 insert into autogen (shortcut) values (1);
 
@@ -158,8 +147,8 @@ IS
 declare
   f     utl_file.file_type;
   line  varchar(1000);
-  name1 varchar(10);
-  pass1 varchar(10);
+  name1 varchar(30);
+  pass1 varchar(30);
   email1 varchar(30);
 begin
   f := utl_file.fopen('DATABASE', 'file_raw.csv', 'r');
@@ -198,110 +187,149 @@ end;
     insert into users(id, name, pass) values((select users from autogen), 'user10', 'pass10');
 */
 
-  insert into shortcut (uploader, name, id, upload_date) values ('a@gmail', 'short1_1', (select shortcut
+  insert into shortcut (uploader, name, description, id, upload_date) values ('a@gmail', 'short1_1', 'description', (select shortcut
                                                                                  from autogen), sysdate);
-  insert into shortcut (uploader, name, id, upload_date) values ('a@gmail', 'short1_2', (select shortcut
+  insert into shortcut (uploader, name, description, id, upload_date) values ('a@gmail', 'short1_2', 'description', (select shortcut
                                                                                  from autogen), sysdate);
-  insert into shortcut (uploader, name, id, upload_date) values ('a@gmail', 'short1_3', (select shortcut
-                                                                                 from autogen), sysdate);
-
-  insert into shortcut (uploader, name, id, upload_date) values ('b@gmail', 'short2_1', (select shortcut
-                                                                                 from autogen), sysdate);
-  insert into shortcut (uploader, name, id, upload_date) values ('b@gmail', 'short2_2', (select shortcut
-                                                                                 from autogen), sysdate);
-  insert into shortcut (uploader, name, id, upload_date) values ('b@gmail', 'short2_3', (select shortcut
+  insert into shortcut (uploader, name, description, id, upload_date) values ('a@gmail', 'short1_3', 'description', (select shortcut
                                                                                  from autogen), sysdate);
 
-  insert into shortcut (uploader, name, id, upload_date) values ('c@gmail', 'short3_1', (select shortcut
+  insert into shortcut (uploader, name, description, id, upload_date) values ('b@gmail', 'short2_1', 'description', (select shortcut
                                                                                  from autogen), sysdate);
-  insert into shortcut (uploader, name, id, upload_date) values ('c@gmail', 'short3_2', (select shortcut
+  insert into shortcut (uploader, name, description, id, upload_date) values ('b@gmail', 'short2_2', 'description', (select shortcut
                                                                                  from autogen), sysdate);
-  insert into shortcut (uploader, name, id, upload_date) values ('c@gmail', 'short3_3', (select shortcut
-                                                                                 from autogen), sysdate);
-
-  insert into shortcut (uploader, name, id, upload_date) values ('d@gmail', 'short4_1', (select shortcut
-                                                                                 from autogen), sysdate);
-  insert into shortcut (uploader, name, id, upload_date) values ('d@gmail', 'short4_2', (select shortcut
-                                                                                 from autogen), sysdate);
-  insert into shortcut (uploader, name, id, upload_date) values ('d@gmail', 'short4_3', (select shortcut
+  insert into shortcut (uploader, name, description, id, upload_date) values ('b@gmail', 'short2_3', 'description', (select shortcut
                                                                                  from autogen), sysdate);
 
-  insert into shortcut (uploader, name, id, upload_date) values ('e@gmail', 'short5_1', (select shortcut
+  insert into shortcut (uploader, name, description, id, upload_date) values ('c@gmail', 'short3_1', 'description', (select shortcut
                                                                                  from autogen), sysdate);
-  insert into shortcut (uploader, name, id, upload_date) values ('e@gmail', 'short5_2', (select shortcut
+  insert into shortcut (uploader, name, description, id, upload_date) values ('c@gmail', 'short3_2', 'description', (select shortcut
                                                                                  from autogen), sysdate);
-  insert into shortcut (uploader, name, id, upload_date) values ('e@gmail', 'short5_3', (select shortcut
-                                                                                 from autogen), sysdate);
-
-  insert into shortcut (uploader, name, id, upload_date) values ('f@gmail', 'short6_1', (select shortcut
-                                                                                 from autogen), sysdate);
-  insert into shortcut (uploader, name, id, upload_date) values ('f@gmail', 'short6_2', (select shortcut
-                                                                                 from autogen), sysdate);
-  insert into shortcut (uploader, name, id, upload_date) values ('f@gmail', 'short6_3', (select shortcut
+  insert into shortcut (uploader, name, description, id, upload_date) values ('c@gmail', 'short3_3', 'description', (select shortcut
                                                                                  from autogen), sysdate);
 
-  insert into shortcut (uploader, name, id, upload_date) values ('g@gmail', 'short7_1', (select shortcut
+  insert into shortcut (uploader, name, description, id, upload_date) values ('d@gmail', 'short4_1', 'description', (select shortcut
                                                                                  from autogen), sysdate);
-  insert into shortcut (uploader, name, id, upload_date) values ('g@gmail', 'short7_2', (select shortcut
+  insert into shortcut (uploader, name, description, id, upload_date) values ('d@gmail', 'short4_2', 'description', (select shortcut
                                                                                  from autogen), sysdate);
-  insert into shortcut (uploader, name, id, upload_date) values ('g@gmail', 'short7_3', (select shortcut
-                                                                                 from autogen), sysdate);
-
-  insert into shortcut (uploader, name, id, upload_date) values ('h@gmail', 'short8_1', (select shortcut
-                                                                                 from autogen), sysdate);
-  insert into shortcut (uploader, name, id, upload_date) values ('h@gmail', 'short8_2', (select shortcut
-                                                                                 from autogen), sysdate);
-  insert into shortcut (uploader, name, id, upload_date) values ('h@gmail', 'short8_3', (select shortcut
+  insert into shortcut (uploader, name, description, id, upload_date) values ('d@gmail', 'short4_3', 'description', (select shortcut
                                                                                  from autogen), sysdate);
 
-  insert into shortcut (uploader, name, id, upload_date) values ('i@gmail', 'short9_1', (select shortcut
+  insert into shortcut (uploader, name, description, id, upload_date) values ('e@gmail', 'short5_1', 'description', (select shortcut
                                                                                  from autogen), sysdate);
-  insert into shortcut (uploader, name, id, upload_date) values ('i@gmail', 'short9_2', (select shortcut
+  insert into shortcut (uploader, name, description, id, upload_date) values ('e@gmail', 'short5_2', 'description', (select shortcut
                                                                                  from autogen), sysdate);
-  insert into shortcut (uploader, name, id, upload_date) values ('i@gmail', 'short9_3', (select shortcut
+  insert into shortcut (uploader, name, description, id, upload_date) values ('e@gmail', 'short5_3', 'description', (select shortcut
                                                                                  from autogen), sysdate);
 
-  insert into shortcut (uploader, name, id, upload_date) values ('j@gmail', 'short10_1', (select shortcut
+  insert into shortcut (uploader, name, description, id, upload_date) values ('f@gmail', 'short6_1', 'description', (select shortcut
+                                                                                 from autogen), sysdate);
+  insert into shortcut (uploader, name, description, id, upload_date) values ('f@gmail', 'short6_2', 'description', (select shortcut
+                                                                                 from autogen), sysdate);
+  insert into shortcut (uploader, name, description, id, upload_date) values ('f@gmail', 'short6_3', 'description', (select shortcut
+                                                                                 from autogen), sysdate);
+
+  insert into shortcut (uploader, name, description, id, upload_date) values ('g@gmail', 'short7_1', 'description', (select shortcut
+                                                                                 from autogen), sysdate);
+  insert into shortcut (uploader, name, description, id, upload_date) values ('g@gmail', 'short7_2', 'description', (select shortcut
+                                                                                 from autogen), sysdate);
+  insert into shortcut (uploader, name, description, id, upload_date) values ('g@gmail', 'short7_3', 'description', (select shortcut
+                                                                                 from autogen), sysdate);
+
+  insert into shortcut (uploader, name, description, id, upload_date) values ('h@gmail', 'short8_1', 'description', (select shortcut
+                                                                                 from autogen), sysdate);
+  insert into shortcut (uploader, name, description, id, upload_date) values ('h@gmail', 'short8_2', 'description', (select shortcut
+                                                                                 from autogen), sysdate);
+  insert into shortcut (uploader, name, description, id, upload_date) values ('h@gmail', 'short8_3', 'description', (select shortcut
+                                                                                 from autogen), sysdate);
+
+  insert into shortcut (uploader, name, description, id, upload_date) values ('i@gmail', 'short9_1', 'description', (select shortcut
+                                                                                 from autogen), sysdate);
+  insert into shortcut (uploader, name, description, id, upload_date) values ('i@gmail', 'short9_2', 'description', (select shortcut
+                                                                                 from autogen), sysdate);
+  insert into shortcut (uploader, name, description, id, upload_date) values ('i@gmail', 'short9_3', 'description', (select shortcut
+                                                                                 from autogen), sysdate);
+
+  insert into shortcut (uploader, name, description, id, upload_date) values ('j@gmail', 'short10_1', 'description', (select shortcut
                                                                                    from autogen), sysdate);
-  insert into shortcut (uploader, name, id, upload_date) values ('j@gmail', 'short10_2', (select shortcut
+  insert into shortcut (uploader, name, description, id, upload_date) values ('j@gmail', 'short10_2', 'description', (select shortcut
                                                                                    from autogen), sysdate);
-  insert into shortcut (uploader, name, id, upload_date) values ('j@gmail', 'short10_3', (select shortcut
+  insert into shortcut (uploader, name, description, id, upload_date) values ('j@gmail', 'short10_3', 'description', (select shortcut
                                                                                    from autogen), sysdate);
 
+insert into votes (users, shortcut, upvote) values (
+  'a@gmail', 2, 1
+);
+insert into votes (users, shortcut, upvote) values (
+  'a@gmail', 3, 0
+);
+
+insert into votes (users, shortcut, upvote) values (
+  'b@gmail', 3, 1
+);
+insert into votes (users, shortcut, upvote) values (
+  'b@gmail', 4, 0
+);
+
+insert into votes (users, shortcut, upvote) values (
+  'c@gmail', 4, 1
+);
+insert into votes (users, shortcut, upvote) values (
+  'c@gmail', 5, 0
+);
+
+insert into votes (users, shortcut, upvote) values (
+  'd@gmail', 5, 1
+);
+insert into votes (users, shortcut, upvote) values (
+  'd@gmail', 6, 0
+);
+
+insert into votes (users, shortcut, upvote) values (
+  'e@gmail', 6, 1
+);
+insert into votes (users, shortcut, upvote) values (
+  'e@gmail', 7, 0
+);
+
+insert into votes (users, shortcut, upvote) values (
+  'f@gmail', 7, 1
+);
+insert into votes (users, shortcut, upvote) values (
+  'f@gmail', 8, 0
+);
+
+insert into votes (users, shortcut, upvote) values (
+  'g@gmail', 8, 1
+);
+insert into votes (users, shortcut, upvote) values (
+  'g@gmail', 9, 0
+);
+
+insert into votes (users, shortcut, upvote) values (
+  'h@gmail', 9, 1
+);
+insert into votes (users, shortcut, upvote) values (
+  'h@gmail', 10, 0
+);
+
+insert into votes (users, shortcut, upvote) values (
+  'i@gmail', 10, 1
+);
+insert into votes (users, shortcut, upvote) values (
+  'i@gmail', 1, 0
+);
+
+insert into votes (users, shortcut, upvote) values (
+  'j@gmail', 1, 1
+);
+insert into votes (users, shortcut, upvote) values (
+  'j@gmail', 2, 0
+);
+
+commit;
 
 begin
-  upvote('a@gmail', 2, 1);
-  upvote('a@gmail', 3, 0);
-
-  upvote('b@gmail', 3, 1);
-  upvote('b@gmail', 4, 0);
-
-  upvote('c@gmail', 4, 1);
-  upvote('c@gmail', 5, 0);
-
-  upvote('d@gmail', 5, 1);
-  upvote('d@gmail', 6, 0);
-
-  upvote('e@gmail', 6, 1);
-  upvote('e@gmail', 7, 0);
-
-  upvote('f@gmail', 7, 1);
-  upvote('f@gmail', 8, 0);
-
-  upvote('g@gmail', 8, 1);
-  upvote('g@gmail', 9, 0);
-
-  upvote('h@gmail', 9, 1);
-  upvote('h@gmail', 10, 0);
-
-  upvote('i@gmail', 10, 1);
-  upvote('i@gmail', 1, 0);
-
-  upvote('j@gmail', 1, 1);
-  upvote('j@gmail', 2, 0);
-
-  commit;
-
   get_shortcuts('user1');
   shortcut_rep(4);
 END;

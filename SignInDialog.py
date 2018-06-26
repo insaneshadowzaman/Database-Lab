@@ -6,7 +6,7 @@ from PyQt5.uic import loadUi
 from MainWindow import MainWindow
 
 version = "0.0.1"
-connectionstring = "c##r1507006/p1507006@127.0.0.1/orcldb"
+connectionString = "c##r1507006/p1507006@127.0.0.1/orcldb"
 
 
 class SignInDialog(QDialog):
@@ -18,15 +18,15 @@ class SignInDialog(QDialog):
         # Signals and slots
         self.signinButton.clicked.connect(self.signIn)
         self.cancelButton.clicked.connect(self.cancel)
-        self.signupButton.clicked.connect(self.signUp)
+        self.signupButton.clicked.connect(self.sign_up)
 
-    def signUp(self):
+    def sign_up(self):
         fname = self.signupNameLineEdit.text()
         email = self.signupUserLineEdit.text()
         password = self.signupPassLineEdit.text()
         if signUpCheck(email):
             try:
-                con = orcl.connect(connectionstring)
+                con = orcl.connect(connectionString)
                 cur = con.cursor()
                 cur.prepare(
                     "insert into users (name, pass, date_created, email) values (:name1, :pass1, sysdate, :email1)")
@@ -66,7 +66,7 @@ def showError(parent, error=1):
 
 
 def signInCheck(userName, password):
-    con = orcl.connect(connectionstring)
+    con = orcl.connect(connectionString)
     cur = con.cursor()
     cur.prepare("select * from users where email = :email and pass = :pass")
     cur.execute(None, {'email': userName, 'pass': password})
@@ -82,7 +82,7 @@ def signInCheck(userName, password):
 
 
 def signUpCheck(userName):
-    con = orcl.connect(connectionstring)
+    con = orcl.connect(connectionString)
     cur = con.cursor()
     cur.prepare("select email from users where email = :userName")
     cur.execute(None, {"userName": userName})

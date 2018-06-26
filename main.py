@@ -5,8 +5,8 @@ from SignInDialog import SignInDialog
 
 def main():
     app = QApplication(sys.argv)
-    signInDialog = SignInDialog()
-    signInDialog.show()
+    sign_in_dialog = SignInDialog()
+    sign_in_dialog.show()
     sys.exit(app.exec_())
 
 
